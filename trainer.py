@@ -18,6 +18,13 @@ class Trainer:
             batch_size = BATCH_SIZE,
             shuffle = True
         )
+
+        self.val_dataloader = DataLoader(
+            self.val_dataset,
+            batch_size = VAL_SIZE,
+            shuffle = False
+        )
+
         self.optimizer = optimizer
 
         self.train_loss_over_time = []
@@ -29,11 +36,11 @@ class Trainer:
         pass
 
     def __report(self):
-        _, axes = plt.subplots(2, 2)
-        axes[0].plot(self.train_loss_over_time)
-        axes[1].plot(self.val_loss_over_time)
-        axes[2].plot(self.train_accuracy_over_time)
-        axes[3].plot(self.val_accuracy_over_time)
+        _, axes = plt.subplots(1, 2)
+        axes[0, 0].plot(self.train_loss_over_time)
+        axes[0, 0].plot(self.val_loss_over_time)
+        axes[0, 1].plot(self.train_accuracy_over_time)
+        axes[0, 1].plot(self.val_accuracy_over_time)
 
         plt.show()
 
@@ -49,32 +56,40 @@ class Trainer:
                 loss.backward()
                 self.optimizer.step()
 
-                if batch_no == num_batches - 1:
+                if batch_no == 0:
                     self.model.eval()
                     with torch.no_grad():
                         train_x, train_y = x, y
                         train_y_predict = self.model(train_x)
                         train_y_choice = torch.argmax(train_y_predict, dim = 1)
+                        #print(train_y_choice, train_y)
+                        train_loss = self.loss_fn(train_y_predict, train_y)
+                        train_accuracy = accuracy_score(train_y.cpu(), train_y_choice.cpu())
 
-                        train_loss = self.loss_fn(train_y, train_y_predict)
-                        train_accuracy = accuracy_score(train_y, train_y_choice)
+                        val_iter = iter(self.val_dataloader)
+                        val_x, val_y = next(val_iter)
 
-                        val_x, val_y = self.val_dataset.x, self.val_dataset.y
                         val_y_predict = self.model(val_x)
-                        val_loss = self.loss_fn(val_y_predict, val_y)
-
                         val_y_choice = torch.argmax(val_y_predict, dim = 1)
-                        val_accuracy = accuracy_score(val_y, val_y_choice)
 
-                        self.train_loss_over_time.append(train_loss)
-                        self.val_loss_over_time.append(val_loss)
+                        val_loss = self.loss_fn(val_y_predict, val_y)
+                        val_accuracy = accuracy_score(val_y.cpu(), val_y_choice.cpu())
+
+                        self.train_loss_over_time.append(train_loss.cpu())
+                        self.val_loss_over_time.append(val_loss.cpu())
                         self.train_accuracy_over_time.append(train_accuracy)
                         self.val_accuracy_over_time.append(val_accuracy)
+                        print(train_loss, val_loss, train_accuracy, val_accuracy)
                     
                     self.model.train()
 
-                if batch_no % 10 == 0:
+                if batch_no % 50 == 0:
                     print("Epoch {}/{}, Batch no {}/{}, Train loss = {}".format(epoch_no, num_epochs, batch_no, num_batches, loss))  
 
             if epoch_no % 10 == 0:       
                 self.__report()
+
+            if epoch_no % 20 == 0:
+                choice = input("End training? (Y/N): ")
+                if choice == "Y":
+                    break

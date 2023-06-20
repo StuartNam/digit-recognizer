@@ -46,7 +46,7 @@ dataset = MNISTTrainDataset(x, y)
 # plt.show()
 
 # Model
-model = MNISTClassifier()
+model = MNISTClassifier().to(device)
 
 # Loss
 loss_fn = nn.CrossEntropyLoss()
