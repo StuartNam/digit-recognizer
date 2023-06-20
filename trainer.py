@@ -1,5 +1,7 @@
 import torch
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, random_split
 from sklearn.metrics import accuracy_score
@@ -19,11 +21,29 @@ class Trainer:
             shuffle = True
         )
 
+        y_train = []
+        for _, labels in self.train_dataloader:
+            y_train.extend(labels.tolist())
+
+        y_train = np.array(y_train)
+
         self.val_dataloader = DataLoader(
             self.val_dataset,
             batch_size = VAL_SIZE,
-            shuffle = False
+            shuffle = True
         )
+
+        y_val = []
+        for _, labels in self.val_dataloader:
+            y_val.extend(labels.tolist())
+
+        y_val = np.array(y_val)
+        
+        _, axes = plt.subplots(1, 2)
+        axes[0].hist(y_train, bins = 10)
+        axes[1].hist(y_val, bins = 10)
+
+        plt.show()
 
         self.optimizer = optimizer
 
@@ -45,7 +65,13 @@ class Trainer:
         plt.show()
 
     def train(self, num_epochs, lrate):
+        num_params = sum(p.numel() for p in self.model.parameters())
+        print("Number of parameters: ", num_params)
+
         num_batches = num_batches = math.ceil(len(self.train_dataset) / BATCH_SIZE)
+
+        print()
+        print("Start training: ...")
 
         for epoch_no in range(num_epochs):
             for batch_no, (x, y) in enumerate(self.train_dataloader):
@@ -79,21 +105,24 @@ class Trainer:
                         self.val_loss_over_time.append(val_loss.cpu())
                         self.train_accuracy_over_time.append(train_accuracy)
                         self.val_accuracy_over_time.append(val_accuracy)
-                        print(train_loss, val_loss, train_accuracy, val_accuracy)
+
+                        print("Start Epoch {}/{}: Train accuracy = {}%, Val accuracy = {}%".format(epoch_no, num_epochs, round(train_accuracy * 100, 2), round(val_accuracy * 100, 2)))
                     
                     self.model.train()
 
-                if batch_no % 50 == 0:
-                    print("Epoch {}/{}, Batch no {}/{}, Train loss = {}".format(epoch_no, num_epochs, batch_no, num_batches, loss))  
+                if batch_no % 200 == 0:
+                    print("- At Batch no {}/{}: Train loss = {}".format(batch_no, num_batches, loss))  
 
-            if epoch_no % 20 == 0:       
+            print()
+
+            if epoch_no % 99 == 0:       
                 self.__report()
 
-            if epoch_no % 20 == 0:
+            if epoch_no % 100 == 0:
                 choice = input("End training? (Y/N): ")
                 if choice == "Y":
                     break
-
+            
         choice = input("Finish training! Save model? (Y/N): ")
         if choice == "Y":
             torch.save(self.model.state_dict(), MODEL_STATE_DICT_FILE)
