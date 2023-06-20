@@ -37,10 +37,10 @@ class Trainer:
 
     def __report(self):
         _, axes = plt.subplots(1, 2)
-        axes[0, 0].plot(self.train_loss_over_time)
-        axes[0, 0].plot(self.val_loss_over_time)
-        axes[0, 1].plot(self.train_accuracy_over_time)
-        axes[0, 1].plot(self.val_accuracy_over_time)
+        axes[0].plot(self.train_loss_over_time)
+        axes[0].plot(self.val_loss_over_time)
+        axes[1].plot(self.train_accuracy_over_time)
+        axes[1].plot(self.val_accuracy_over_time)
 
         plt.show()
 
@@ -62,7 +62,7 @@ class Trainer:
                         train_x, train_y = x, y
                         train_y_predict = self.model(train_x)
                         train_y_choice = torch.argmax(train_y_predict, dim = 1)
-                        #print(train_y_choice, train_y)
+                        
                         train_loss = self.loss_fn(train_y_predict, train_y)
                         train_accuracy = accuracy_score(train_y.cpu(), train_y_choice.cpu())
 
@@ -86,10 +86,14 @@ class Trainer:
                 if batch_no % 50 == 0:
                     print("Epoch {}/{}, Batch no {}/{}, Train loss = {}".format(epoch_no, num_epochs, batch_no, num_batches, loss))  
 
-            if epoch_no % 10 == 0:       
+            if epoch_no % 20 == 0:       
                 self.__report()
 
             if epoch_no % 20 == 0:
                 choice = input("End training? (Y/N): ")
                 if choice == "Y":
                     break
+
+        choice = input("Finish training! Save model? (Y/N): ")
+        if choice == "Y":
+            torch.save(self.model.state_dict(), MODEL_STATE_DICT_FILE)
