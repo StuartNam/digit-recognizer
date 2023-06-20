@@ -12,7 +12,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # Load test dataset
 test_dataset = pd.read_csv(TEST_FILE)
 x = torch.tensor(np.array(test_dataset.iloc[0:, :])).reshape(-1, 1, 28, 28).to(device)
-x = x / 255 * 2 + 1
+x = x / 255 * 2 - 1
 
 x_batches = torch.split(x, 128)
 y_predicted_batches = []
@@ -25,6 +25,10 @@ with torch.no_grad():
     y_predicted = torch.concatenate([model(x) for x in x_batches])
 
 y_choice = torch.argmax(y_predicted, dim = 1).cpu().numpy().reshape(-1, 1)
+
+plt.hist(y_choice, bins = 10)
+plt.show()
+
 y_id = np.arange(1, y_predicted.shape[0] + 1, 1, dtype = np.int64).reshape(-1, 1)
 
 solution = np.concatenate((y_id, y_choice), axis = 1)

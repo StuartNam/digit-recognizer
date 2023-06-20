@@ -50,7 +50,7 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(
     model.parameters(),
     lr = LRATE,
-    weight_decay = 1e-2
+    weight_decay = WEIGHT_DECAY
 )
 
 

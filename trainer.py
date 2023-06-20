@@ -106,6 +106,9 @@ class Trainer:
                         self.train_accuracy_over_time.append(train_accuracy)
                         self.val_accuracy_over_time.append(val_accuracy)
 
+                        plt.hist(val_y_choice, bins = 10)
+                        plt.show()
+
                         print("Start Epoch {}/{}: Train accuracy = {}%, Val accuracy = {}%".format(epoch_no, num_epochs, round(train_accuracy * 100, 2), round(val_accuracy * 100, 2)))
                     
                     self.model.train()

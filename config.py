@@ -12,9 +12,9 @@ MODEL_STATE_DICT_FILE = "result/model.pt"
 # Training configuration
 MODEL = ""
 BATCH_SIZE = 128
-LRATE = 1e-5
-NUM_EPOCHS = 10
-
+LRATE = 1e-4
+NUM_EPOCHS = 30
+WEIGHT_DECAY = 1e-4
 TRAIN_SIZE = 33600
 VAL_SIZE = 8400
 
