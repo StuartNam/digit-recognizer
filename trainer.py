@@ -106,9 +106,6 @@ class Trainer:
                         self.train_accuracy_over_time.append(train_accuracy)
                         self.val_accuracy_over_time.append(val_accuracy)
 
-                        plt.hist(val_y_choice, bins = 10)
-                        plt.show()
-
                         print("Start Epoch {}/{}: Train accuracy = {}%, Val accuracy = {}%".format(epoch_no, num_epochs, round(train_accuracy * 100, 2), round(val_accuracy * 100, 2)))
                     
                     self.model.train()
@@ -126,6 +123,15 @@ class Trainer:
                 if choice == "Y":
                     break
             
+            if epoch_no == 4:
+                torch.save(self.model.state_dict(), "result/model1.pt")
+            
+            if epoch_no == 9:
+                torch.save(self.model.state_dict(), "result/model2.pt")
+
+            if epoch_no == 29:
+                torch.save(self.model.state_dict(), "result/model3.pt")
+
         choice = input("Finish training! Save model? (Y/N): ")
         if choice == "Y":
             torch.save(self.model.state_dict(), MODEL_STATE_DICT_FILE)

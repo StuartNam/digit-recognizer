@@ -22,28 +22,7 @@ class MNISTClassifier(nn.Module):
                 dtype = torch.float32
             ),
 
-            # # In: (N, 4, 28, 28) - Out: (N, 16, 28, 28)
-            # nn.Conv2d(
-            #     in_channels = 4,
-            #     out_channels = 16,
-            #     kernel_size = 3,
-            #     padding = 1,
-            #     dtype = torch.float32
-            # ),
-
-            # In: (N, 4, 28, 28) - Out: (N, 4, 14, 14)
-            nn.MaxPool2d(
-                kernel_size = 2,
-                stride = 2
-            ),
-
-            nn.BatchNorm2d(
-                num_features = 4
-            ),
-
-            nn.ReLU(),
-
-            # In: (N, 16, 14, 14) - Out: (N, 32, 14, 14)
+            # In: (N, 4, 28, 28) - Out: (N, 16, 28, 28)
             nn.Conv2d(
                 in_channels = 4,
                 out_channels = 16,
@@ -52,16 +31,7 @@ class MNISTClassifier(nn.Module):
                 dtype = torch.float32
             ),
 
-            # # In: (N, 32, 14, 14) - Out: (N, 64, 14, 14)
-            # nn.Conv2d(
-            #     in_channels = 32,
-            #     out_channels = 64,
-            #     kernel_size = 3,
-            #     padding = 1,
-            #     dtype = torch.float32
-            # ),
-
-            # In: (N, 64, 14, 14) - Out: (N, 64, 7, 7)
+            # In: (N, 4, 28, 28) - Out: (N, 4, 14, 14)
             nn.MaxPool2d(
                 kernel_size = 2,
                 stride = 2
@@ -73,10 +43,40 @@ class MNISTClassifier(nn.Module):
 
             nn.ReLU(),
 
+            # In: (N, 16, 14, 14) - Out: (N, 32, 14, 14)
+            nn.Conv2d(
+                in_channels = 16,
+                out_channels = 64,
+                kernel_size = 3,
+                padding = 1,
+                dtype = torch.float32
+            ),
+
+            # In: (N, 32, 14, 14) - Out: (N, 64, 14, 14)
+            nn.Conv2d(
+                in_channels = 64,
+                out_channels = 256,
+                kernel_size = 3,
+                padding = 1,
+                dtype = torch.float32
+            ),
+
+            # In: (N, 64, 14, 14) - Out: (N, 64, 7, 7)
+            nn.MaxPool2d(
+                kernel_size = 2,
+                stride = 2
+            ),
+
+            nn.BatchNorm2d(
+                num_features = 256
+            ),
+
+            nn.ReLU(),
+
             nn.Flatten(),
 
             nn.Linear(
-                in_features = 784,
+                in_features = 12544,
                 out_features = 100
             ),
 
