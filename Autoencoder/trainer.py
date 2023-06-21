@@ -57,7 +57,7 @@ class Trainer:
 
         plt.show()
 
-        _, axes = plt.subplots(2, 10)
+        _, axes = plt.subplots(2, 25)
         for i, result in enumerate(self.result_over_time):
             y_predict0, x0 = result
             axes[0, i].imshow(y_predict0, cmap = 'gray')
@@ -68,7 +68,7 @@ class Trainer:
         self.train_loss_over_time = []
         self.val_loss_over_time = []
         self.result_over_time = []
-        
+
     def train(self, num_epochs, lrate):
         num_params = sum(p.numel() for p in self.model.parameters())
         print("Number of parameters: ", num_params)
@@ -118,7 +118,7 @@ class Trainer:
 
             print()
 
-            if epoch_no % 10 == 0:       
+            if epoch_no % 25 == 0:       
                 self.__report()
 
             if epoch_no % 50 == 0:
