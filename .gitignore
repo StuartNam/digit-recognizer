@@ -1,7 +1,8 @@
-result
 .vscode
 __pycache__
-KMeans.py
-KNN.py
-RandomForest.py
-NeuralNetwork.py
+
+CNN/result/
+KMeans/result/
+KNN/result/
+RandomForest/result/
+SVM/result
