@@ -59,11 +59,15 @@ class Trainer:
 
         _, axes = plt.subplots(2, 10)
         for i, result in enumerate(self.result_over_time):
-            y_predict0, y0 = result
-            axes[0, i] = y_predict0
-            axes[1, i] = y0
+            y_predict0, x0 = result
+            axes[0, i].imshow(y_predict0, cmap = 'gray')
+            axes[1, i].imshow(x0, cmap = 'gray')
         
         plt.show()
+        
+        self.train_loss_over_time = []
+        self.val_loss_over_time = []
+        self.result_over_time = []
         
     def train(self, num_epochs, lrate):
         num_params = sum(p.numel() for p in self.model.parameters())
@@ -78,7 +82,7 @@ class Trainer:
             for batch_no, (x, y) in enumerate(self.train_dataloader):
                 y_predict = self.model(x)
                 
-                loss = self.loss_fn(y_predict, y)
+                loss = self.loss_fn(y_predict.reshape(-1, 784), x.reshape(-1, 784))
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
@@ -89,21 +93,21 @@ class Trainer:
                         train_x, train_y = x, y
                         train_y_predict = self.model(train_x)
                         
-                        train_loss = self.loss_fn(train_y_predict, train_y)
+                        train_loss = self.loss_fn(train_y_predict.reshape(-1, 784), train_x.reshape(-1, 784))
 
                         val_iter = iter(self.val_dataloader)
                         val_x, val_y = next(val_iter)
 
                         val_y_predict = self.model(val_x)
 
-                        val_loss = self.loss_fn(val_y_predict, val_y)
+                        val_loss = self.loss_fn(val_y_predict.reshape(-1, 784), val_x.reshape(-1, 784))
 
-                        val_y0 = val_y[0].reshape(28, 28).cpu()
+                        val_x0 = val_x[0].reshape(28, 28).cpu()
                         val_y_predict0 = val_y_predict[0].reshape(28, 28).cpu()
 
                         self.train_loss_over_time.append(train_loss.cpu())
                         self.val_loss_over_time.append(val_loss.cpu())
-                        self.result_over_time.append((val_y_predict0, val_y0))
+                        self.result_over_time.append((val_y_predict0, val_x0))
 
                         print("Start Epoch {}/{}: Train loss = {}, Val loss = {}".format(epoch_no, num_epochs, train_loss, val_loss))
                     

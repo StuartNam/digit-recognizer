@@ -5,6 +5,8 @@ from config import *
 
 class ConvBlock(nn.Module):
     def __init__(self, num_convlayers, num_in_channels, channels_scale):
+        super().__init__()
+
         self.layers = nn.Sequential()
 
         for i in range(num_convlayers):
@@ -12,7 +14,7 @@ class ConvBlock(nn.Module):
                 name = "Conv{}".format(i),
                 module = nn.Conv2d(
                     in_channels = num_in_channels * (channels_scale ** i),
-                    out_channels = num_in_channels * (channels_scale ** i),
+                    out_channels = num_in_channels * (channels_scale ** (i + 1)),
                     kernel_size = 3,
                     padding = 1,
                     dtype = DTYPE
@@ -22,7 +24,7 @@ class ConvBlock(nn.Module):
         self.layers.add_module(
             name = "BN",
             module = nn.BatchNorm2d(
-                num_features = num_in_channels * (channels_scale ** (num_convlayers - 1)),
+                num_features = num_in_channels * (channels_scale ** num_convlayers),
                 dtype = DTYPE
             )
         )
@@ -74,7 +76,7 @@ class ConvTranposeBlock(nn.Module):
         self.layers.add_module(
             name = "BN",
             module = nn.BatchNorm2d(
-                num_features = num_in_channels,
+                num_features = num_out_channels,
                 dtype = DTYPE
             )
         )
@@ -89,13 +91,13 @@ class ConvTranposeBlock(nn.Module):
         return self.layers(x)
     
 class Unflatten(nn.Module):
-    def __init__(self, new_shape):
+    def __init__(self, C, H, W):
         super().__init__()
 
-        self.new_shape = new_shape
+        self.new_shape = (C, H, W)
 
     def forward(self, x):
-        return x.reshape(-1, 1, self.new_shape[0], self.new_shape[1])
+        return x.reshape(-1, self.new_shape[0], self.new_shape[1], self.new_shape[2])
     
 class Autoencoder(nn.Module):
     def __init__(self):
@@ -113,7 +115,7 @@ class Autoencoder(nn.Module):
             # x: (N, 16, 14, 14), y: (N, 256, 7, 7)
             ConvBlock(
                 num_convlayers = 2,
-                num_in_channels = 1,
+                num_in_channels = 16,
                 channels_scale = 4
             ),
 
@@ -134,19 +136,21 @@ class Autoencoder(nn.Module):
             ),
 
             Unflatten(
-                new_shape = (28, 28)
+                C = 256,
+                H = 7,
+                W = 7
             ),
 
             ConvTranposeBlock(
                 num_in_channels = 256,
                 num_out_channels = 16,
-                num_convlayers = 2
+                num_convlayers = 1
             ),
 
             ConvTranposeBlock(
                 num_in_channels = 16,
                 num_out_channels = 1,
-                num_convlayers = 2,
+                num_convlayers = 1,
                 out = True
             ),
         )
