@@ -123,14 +123,14 @@ class Autoencoder(nn.Module):
 
             nn.Linear(
                 in_features = 12544,
-                out_features = 200,
+                out_features = NUM_FEATURES,
                 dtype = DTYPE
             )
         )
 
         self.decoder = nn.Sequential(
             nn.Linear(
-                in_features = 200,
+                in_features = NUM_FEATURES,
                 out_features = 12544,
                 dtype = DTYPE
             ),

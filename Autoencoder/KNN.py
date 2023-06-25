@@ -42,6 +42,7 @@ print()
     SET UP MODEL
 """
 encoder = Autoencoder()
+encoder.load_state_dict(torch.load("result/model.pt"))
 
 model = KNeighborsClassifier(
     n_neighbors = NUM_NEIGHBORS

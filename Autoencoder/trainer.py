@@ -118,7 +118,7 @@ class Trainer:
 
             print()
 
-            if epoch_no % 25 == 0:       
+            if epoch_no % 24 == 0:       
                 self.__report()
 
             if epoch_no % 50 == 0:
