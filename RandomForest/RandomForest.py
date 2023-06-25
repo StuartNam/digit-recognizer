@@ -6,6 +6,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
+import time
+
 from config import *
 
 """
@@ -40,6 +42,8 @@ print()
 """
 model = RandomForestClassifier(
     n_estimators = NUM_ESTIMATORS,
+    min_samples_split = 9,
+    min_samples_leaf = 3,
     random_state = 0
 )
 
@@ -54,9 +58,11 @@ print()
 """
     TRAIN MODEL!
 """
-model.fit(x, y)
+start_training_time = time.time()
+model.fit(x_train, y_train)
+end_training_time = time.time()
 
-
+print("Training time: {}s".format(end_training_time - start_training_time))
 """
     EVALUATE ON TRAIN AND VAL DATASET
 """
@@ -74,7 +80,11 @@ print()
 """
     TEST MODEL
 """
+start_inferring_time = time.time()
 y_predicted_test = model.predict(x_test).reshape(-1, 1)
+end_inferring_time = time.time()
+print("Inference time: {}s".format(end_inferring_time - start_inferring_time))
+
 y_predicted_test_no = np.arange(1, x_test.shape[0] + 1).reshape(-1, 1)
 
 solution = np.concatenate([y_predicted_test_no, y_predicted_test], axis = 1)
